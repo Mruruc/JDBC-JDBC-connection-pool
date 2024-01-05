@@ -3,24 +3,25 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.mruruc</groupId>
-  <artifactId>FinTech-with-PlainJDBC</artifactId>
+  <artifactId>custom-connection_pool</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>FinTech-with-PlainJDBC</name>
+  <name>custom-connection_pool</name>
   <url>https://github.com/Mruruc</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
+
   </properties>
 
   <dependencies>
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>42.7.0</version>
-      </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.0</version>
+    </dependency>
   </dependencies>
 </project>
