@@ -1,8 +1,6 @@
 package com.mruruc.application;
 
 
-import com.mruruc.db_management.dbconnection.Db;
-
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Properties;

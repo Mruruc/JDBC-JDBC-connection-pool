@@ -1,23 +1,19 @@
 package com.mruruc.application;
 
 
-import com.mruruc.db_management.dbconnection.Db;
-import com.mruruc.model.client.Address;
 import com.mruruc.model.client.Client;
 import com.mruruc.model.client.Gender;
-import com.mruruc.service.AddressService;
 import com.mruruc.service.ClientService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public class App {
     public static void main(String[] args) throws SQLException {
-        Db db = null;
+
         try {
-            db = new Db();
+
 
             /*
             Address address3 = new Address( "Denmark", "Copenhagen", "Center", "00-001", 555);
@@ -54,16 +50,14 @@ public class App {
 
 
 
-            ClientService service = new ClientService(db);
+            ClientService service = new ClientService();
 
 
-/*
+
             //List of All Client
             List<Client> all = service.getAll();
             all.stream().forEach(System.out::println);
 
-
-*/
 
 
 /*
@@ -83,18 +77,19 @@ public class App {
 
             boolean exists = service.isExists(3L);
             System.out.println(exists);
-*/
+
 /*
             //Update Client:
             Client update = service.update(5L, client);
             System.out.println(update);
 */
 
-/*
+
             //Delete Client
-            Long delete = service.delete(10L);
+            Long delete = service.delete(145L);
+             service.delete(141L);
             System.out.println(delete);
-*/
+
 
 
             /*
@@ -148,8 +143,6 @@ public class App {
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-        } finally {
-            db.connection().close();
         }
 
     }

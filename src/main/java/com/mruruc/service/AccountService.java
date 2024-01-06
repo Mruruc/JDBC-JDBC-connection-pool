@@ -1,22 +1,22 @@
 package com.mruruc.service;
 
-import com.mruruc.db_management.dbconnection.Db;
 import com.mruruc.db_management.sqlQueries.AccountQueries.AccountSqlQuery;
 import com.mruruc.exceptions.TransactionException;
 import com.mruruc.model.account.BankAccount;
 import com.mruruc.repository.CRUDRepository;
 
-import javax.sound.sampled.LineUnavailableException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.mruruc.db_management.dbconnection.DataSource.getConnection;
+
 public class AccountService implements CRUDRepository<BankAccount, UUID> {
-    private Db db;
-    public AccountService(Db db){
-        this.db=db;
+
+    public AccountService(){
+
     }
     @Override
     public boolean save(BankAccount bankAccount) throws SQLException {
@@ -24,7 +24,7 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
             throw new NullPointerException("BankAccount Instance Is NULL!");
         }
         try(PreparedStatement preparedStatement
-                    =db.connection().prepareStatement(AccountSqlQuery.createNewBankAccount)){
+                    = getConnection().prepareStatement(AccountSqlQuery.createNewBankAccount)){
 
             preparedStatement.setBigDecimal(1,bankAccount.getBalance());
             preparedStatement.setTimestamp(2,Timestamp.valueOf(bankAccount.getOpenDate()));
@@ -40,7 +40,7 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
     public List<BankAccount> getAll() throws SQLException{
         List<BankAccount> bankAccounts=new ArrayList<>();
         try(PreparedStatement preparedStatement =
-                    db.connection().prepareStatement(AccountSqlQuery.getCreatedAccountList)){
+                    getConnection().prepareStatement(AccountSqlQuery.getCreatedAccountList)){
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 bankAccounts.add(
@@ -65,7 +65,7 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
         }
 
         try(PreparedStatement preparedStatement =
-                db.connection().prepareStatement(AccountSqlQuery.getAccount)){
+                getConnection().prepareStatement(AccountSqlQuery.getAccount)){
 
             preparedStatement.setObject(1,uuid);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
@@ -95,7 +95,7 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
         }
 
         try(PreparedStatement preparedStatement =
-                db.connection().prepareStatement(AccountSqlQuery.updateAccount)){
+                getConnection().prepareStatement(AccountSqlQuery.updateAccount)){
 
             preparedStatement.setBigDecimal(1,bankAccount.getBalance());
 
@@ -128,7 +128,7 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
         }
 
         try(PreparedStatement preparedStatement=
-                db.connection().prepareStatement(AccountSqlQuery.deleteBankAccount)){
+                getConnection().prepareStatement(AccountSqlQuery.deleteBankAccount)){
             preparedStatement.setObject(1,id);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
                 if( resultSet.next()) {
@@ -141,14 +141,13 @@ public class AccountService implements CRUDRepository<BankAccount, UUID> {
 
     @Override
     public boolean isExists(UUID uuid) throws SQLException {
-        try (PreparedStatement preparedStatement = db.connection().prepareStatement(AccountSqlQuery.isExists)) {
+        try (PreparedStatement preparedStatement =getConnection()
+                .prepareStatement(AccountSqlQuery.isExists)) {
 
             preparedStatement.setObject(1, uuid);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                boolean exists = resultSet.next();
-                System.out.println("Query result: " + exists);
-                return exists;
+                return resultSet.next();
             }
         }
     }

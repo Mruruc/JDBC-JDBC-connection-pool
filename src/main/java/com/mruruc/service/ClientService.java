@@ -1,7 +1,6 @@
 package com.mruruc.service;
 
 import com.mruruc.db_management.DbUtil;
-import com.mruruc.db_management.dbconnection.Db;
 import com.mruruc.db_management.sqlQueries.clientQueries.ClientSQLQuery;
 import com.mruruc.exceptions.ClientAlreadyExistsException;
 import com.mruruc.exceptions.ClientNotFoundException;
@@ -12,11 +11,11 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
+import static com.mruruc.db_management.dbconnection.DataSource.getConnection;
+
 
 public class ClientService implements CRUDRepository<Client,Long> {
-    private Db db;
-    public ClientService(Db db) {
-        this.db=db;
+    public ClientService() {
     }
 
     @Override
@@ -28,7 +27,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
             throw new ClientAlreadyExistsException("Client With : " +client.getEmail() + " Already Exists");
         }
         try(PreparedStatement pstmt =
-                    db.connection().prepareStatement(ClientSQLQuery.insertIntoClient)){
+                    getConnection().prepareStatement(ClientSQLQuery.insertIntoClient)){
 
             pstmt.setString(1,client.getFirstName());
             pstmt.setString(2,client.getLastName());
@@ -36,7 +35,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
             pstmt.setString(4,client.getGender().toString());
 
             // convert List of phone to sql array
-            Array array = DbUtil.convertListToSqlArray(db.connection(), client.getPhone(), "VARCHAR");
+            Array array = DbUtil.convertListToSqlArray(client.getPhone(), "VARCHAR");
             pstmt.setArray(5,array);
 
             pstmt.setString(6, client.getEmail());
@@ -51,7 +50,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
     public List<Client> getAll() throws SQLException {
         List<Client> clients = new ArrayList<>();
 
-        try (Statement statement = db.connection().createStatement();
+        try (Statement statement = getConnection().createStatement();
              ResultSet rs = statement.executeQuery(ClientSQLQuery.selectAllClient)) {
 
             while (rs.next()) {
@@ -78,7 +77,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
         if(!isExists(id)){
             throw new ClientNotFoundException("Client Not Found Check Provided ID !");
         }
-        try (PreparedStatement pstmt = db.connection().prepareStatement(ClientSQLQuery.findClientById)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(ClientSQLQuery.findClientById)) {
             pstmt.setLong(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -104,13 +103,13 @@ public class ClientService implements CRUDRepository<Client,Long> {
             throw new NullPointerException("Client Instance IS NULL!");
         }
         if(isExists(id)){
-            try (PreparedStatement pstmt = db.connection().prepareStatement(ClientSQLQuery.updateClient)) {
+            try (PreparedStatement pstmt = getConnection().prepareStatement(ClientSQLQuery.updateClient)) {
 
                 pstmt.setString(1, updatedClient.getFirstName());
                 pstmt.setString(2, updatedClient.getLastName());
                 pstmt.setDate(3, Date.valueOf(updatedClient.getDob()));
                 pstmt.setString(4, updatedClient.getGender().toString());
-                pstmt.setArray(5, DbUtil.convertListToSqlArray(db.connection(),updatedClient.getPhone(),"VARCHAR"));
+                pstmt.setArray(5, DbUtil.convertListToSqlArray(updatedClient.getPhone(),"VARCHAR"));
                 pstmt.setString(6, updatedClient.getEmail());
                 pstmt.setLong(7, updatedClient.getAddressID());
                 pstmt.setLong(8, id);
@@ -143,7 +142,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
             throw new ClientNotFoundException("CLIENT DOES NOT EXISTS!");
         }
 
-        try (PreparedStatement preparedStatement = db.connection()
+        try (PreparedStatement preparedStatement = getConnection()
                 .prepareStatement(ClientSQLQuery.deleteClient)) {
             preparedStatement.setLong(1, id);
             try (ResultSet rs = preparedStatement.executeQuery()) {
@@ -157,7 +156,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
 
     @Override
     public boolean isExists(Long id) throws SQLException {
-        try (PreparedStatement pstmt = db.connection().prepareStatement(ClientSQLQuery.isClientExists)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(ClientSQLQuery.isClientExists)) {
             pstmt.setLong(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 return rs.next();
@@ -172,7 +171,7 @@ public class ClientService implements CRUDRepository<Client,Long> {
         Objects.requireNonNull(emailAddress,"Email Address Can Not Be Null!");
 
         try(PreparedStatement preparedStatement
-                    = db.connection().prepareStatement(ClientSQLQuery.checkClientBasedOnEmail)){
+                    = getConnection().prepareStatement(ClientSQLQuery.checkClientBasedOnEmail)){
             preparedStatement.setString(1,emailAddress);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
                 return resultSet.next();

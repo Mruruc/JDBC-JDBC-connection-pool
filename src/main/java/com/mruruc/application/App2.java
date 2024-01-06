@@ -1,14 +1,6 @@
 package com.mruruc.application;
 
-import com.mruruc.db_management.dbconnection.Db;
-import com.mruruc.model.account.BankAccount;
-import com.mruruc.service.AccountService;
-
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-
-import java.util.UUID;
 
 public class App2 {
     public static void main(String[] args) throws SQLException {

@@ -1,6 +1,5 @@
 package com.mruruc.service;
 
-import com.mruruc.db_management.dbconnection.Db;
 import com.mruruc.db_management.sqlQueries.AddressQueries.AddressSqlQuery;
 import com.mruruc.exceptions.AddressNotFoundException;
 import com.mruruc.exceptions.TransactionException;
@@ -16,11 +15,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.mruruc.db_management.dbconnection.DataSource.getConnection;
+
 public class AddressService implements CRUDRepository<Address,Long> {
 
-    private Db db;
-    public AddressService(Db db){
-        this.db=db;
+
+    public AddressService(){
     }
 
 
@@ -30,7 +30,8 @@ public class AddressService implements CRUDRepository<Address,Long> {
             throw new NullPointerException("Provided Address IS NULL!");
         }
         try(PreparedStatement preparedStatement =
-                    db.connection().prepareStatement(AddressSqlQuery.insertIntoAddress)){
+                   getConnection().prepareStatement(AddressSqlQuery.insertIntoAddress)){
+
             preparedStatement.setString(1,address.getCountry());
             preparedStatement.setString(2,address.getCity());
             preparedStatement.setString(3,address.getStreet());
@@ -45,7 +46,7 @@ public class AddressService implements CRUDRepository<Address,Long> {
     public List<Address> getAll() throws SQLException {
         List<Address> listOfAddress=new ArrayList<>();
 
-        try(Statement statement=db.connection().createStatement()){
+        try(Statement statement=getConnection().createStatement()){
             ResultSet resultSet = statement.executeQuery(AddressSqlQuery.getAllAddress);
             while (resultSet.next()){
                 listOfAddress.add(
@@ -73,7 +74,7 @@ public class AddressService implements CRUDRepository<Address,Long> {
             throw new AddressNotFoundException("Address Not Found!");
         }
         try(PreparedStatement preparedStatement =
-                    db.connection().prepareStatement(AddressSqlQuery.findAddress)) {
+                    getConnection().prepareStatement(AddressSqlQuery.findAddress)) {
             preparedStatement.setLong(1,id);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
                 if(resultSet.next()){
@@ -109,7 +110,7 @@ public class AddressService implements CRUDRepository<Address,Long> {
         }
 
         try(PreparedStatement preparedStatement =
-                    db.connection().prepareStatement(AddressSqlQuery.updateAddress)){
+                    getConnection().prepareStatement(AddressSqlQuery.updateAddress)){
 
             preparedStatement.setString(1,address.getCountry());
             preparedStatement.setString(2,address.getCity());
@@ -146,7 +147,7 @@ public class AddressService implements CRUDRepository<Address,Long> {
         }
 
         try (PreparedStatement preparedStatement =
-                     db.connection().prepareStatement(AddressSqlQuery.deleteAddress)) {
+                     getConnection().prepareStatement(AddressSqlQuery.deleteAddress)) {
             preparedStatement.setLong(1, addressID);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -160,7 +161,7 @@ public class AddressService implements CRUDRepository<Address,Long> {
 
     @Override
     public boolean isExists(Long id) throws SQLException{
-        try (PreparedStatement pstmt = db.connection().prepareStatement(AddressSqlQuery.isAddressExists)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(AddressSqlQuery.isAddressExists)) {
             pstmt.setLong(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 return rs.next();
